@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="css/site.css">
 </head>
 <body>
+<a class="skip" href="#main">Skip to main content</a>
 <div class="wrap">
   <header>
     <nav class="topnav" aria-label="Sections">
@@ -17,13 +18,14 @@
     <p class="lede">How many hours would a minimum-wage worker need to work each week to afford a modest two-bedroom rental in your California county, and how has that changed since 2006?</p>
     <span class="asof" id="asof">Loading data…</span>
   </header>
+  <main id="main">
 
-  <div class="controls card" id="explore">
+  <div class="controls card" id="explore" role="search" aria-label="Choose county, year and measure">
     <label>County
       <select id="countySelect" aria-label="Choose a county"></select>
     </label>
     <label class="year">Year <b id="yearLabel">2026</b>
-      <input type="range" id="yearRange" min="2006" max="2026" step="1" value="2026" aria-label="Year">
+      <input type="range" id="yearRange" min="2006" max="2026" step="1" value="2026" aria-label="Year" aria-valuetext="2026">
     </label>
     <div>
       <div class="ctl-label">Color the map by</div>
@@ -38,11 +40,12 @@
     </div>
   </div>
 
-  <div class="heroes" id="heroes"></div>
+  <section class="heroes" id="heroes" aria-label="Statewide figures"></section>
 
   <div class="main">
     <div class="card" id="mapCard">
-      <div id="map" role="img" aria-label="Map of California counties colored by the selected measure"></div>
+      <div id="map"></div>
+      <p class="sr-only">Each county on the map is a button: press Tab to move between counties and Enter to select one. The same values are in the data table below.</p>
       <div class="legend-title" id="legendTitle"></div>
       <div class="legend" id="legend"></div>
     </div>
@@ -66,7 +69,7 @@
     <p class="sub" id="jobsSub"></p>
     <div class="jobs-grid">
       <div class="card"><p class="chart-title" id="jobsChartTitle"></p><div id="jobsChart"></div></div>
-      <div class="card"><p class="chart-title">Pay growth compared with rent growth</p><div class="table-wrap short"><table id="jobsTable"></table></div><p class="note-small" id="jobsNote"></p></div>
+      <div class="card"><p class="chart-title" id="jobsTableTitle">Pay growth compared with rent growth</p><div class="table-wrap short"><table id="jobsTable"></table></div><p class="note-small" id="jobsNote"></p></div>
     </div>
   </section>
 
@@ -82,13 +85,13 @@
   <section>
     <h3 id="rankTitle">All 58 counties</h3>
     <p class="sub" id="rankSub"></p>
-    <div class="card"><div id="rank"></div></div>
+    <div class="card"><div id="rank" tabindex="0" role="region" aria-label="Ranked bar chart of all 58 counties (scrollable)"></div></div>
   </section>
 
   <section>
-    <h3>Data table</h3>
+    <h3 id="tableHeading">Data table</h3>
     <p class="sub" id="tableSub">Click a column to sort.</p>
-    <div class="card table-wrap"><table id="table"></table></div>
+    <div class="card table-wrap" tabindex="0" role="region" aria-labelledby="tableHeading"><table id="table"><caption class="sr-only">All 58 counties for the selected year</caption></table></div>
   </section>
 
   <section class="card prose" id="explanations">
@@ -154,9 +157,10 @@
     <p>This site reports figures; it does not argue for any policy. Labels are kept neutral, and the explanations section gives competing views side by side.</p>
   </section>
 
+  </main>
   <footer>CSE 194 group project · Kareem Nabulsi, Humza Shaikh, Aman Dhillon, Christos Enotiadis · Code and data are public on GitHub. This site is not actively maintained after the semester; check the "data as of" dates.</footer>
 </div>
-<div class="tooltip" id="tip" role="tooltip"></div>
+<div class="tooltip" id="tip" aria-hidden="true"></div>
 
 <script src="js/d3.min.js"></script>
 <script src="js/app.js"></script>

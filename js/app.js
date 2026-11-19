@@ -78,14 +78,22 @@
     .selectAll("path").data(geo.features).join("path").attr("class", "county").attr("d", d3.geoPath(proj))
     .on("mousemove", (e, f) => showTip(e, mapTip(byName.get(f.properties.name))))
     .on("mouseleave", hideTip)
-    .on("click", (e, f) => { st.county = f.properties.name; save(); render(); });
+    .on("click", (e, f) => { st.county = f.properties.name; save(); render(); })
+    .attr("tabindex", 0).attr("role", "button")
+    .on("keydown", (e, f) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); st.county = f.properties.name; save(); render(); } });
+  d3.select("#map svg").attr("role", "group").attr("aria-label", "Map of California counties");
   const colorScale = () => d3.scaleThreshold().domain(METRICS[st.metric].thresholds).range(RAMP);
 
   function renderMap() {
     const m = METRICS[st.metric], c = colorScale();
     counties.attr("fill", f => c(m.get(byName.get(f.properties.name), st.year)))
-      .classed("selected", f => f.properties.name === st.county);
-    counties.filter(".selected").raise();
+      .classed("selected", f => f.properties.name === st.county)
+      .attr("aria-pressed", f => f.properties.name === st.county)
+      .attr("aria-label", f => { const cc = byName.get(f.properties.name); return `${cc.county} County: ${m.fmt(m.get(cc, st.year))}`; });
+    const selF = geo.features.find(f => f.properties.name === st.county);
+    d3.select("#map svg").selectAll("path.sel-outline").data([selF]).join("path").attr("class", "sel-outline")
+      .attr("d", d3.geoPath(proj)).attr("fill", "none").attr("stroke", css("--sel")).attr("stroke-width", 2.5)
+      .attr("pointer-events", "none").attr("aria-hidden", "true");
     d3.select("#legendTitle").text(`${m.short}, ${st.year}${st.metric === "hours" ? "" : dollarNote()}`);
     const t = m.thresholds;
     const labels = [`< ${m.fmt(t[0])}`, ...t.slice(1).map((v, i) => `${m.fmt(t[i])}–${m.fmt(v)}`), `≥ ${m.fmt(t[t.length - 1])}`];
@@ -132,6 +140,7 @@
     const bw = 440, rowH = 34, left = 160, right = 56;
     const x = d3.scaleLinear().domain([0, Math.max(...rows.map(r => r.v), 50)]).range([left, bw - right]);
     const g = d3.select("#barChart").append("svg").attr("viewBox", `0 0 ${bw} ${rows.length * rowH}`).style("width", "100%")
+      .attr("role", "img").attr("aria-label", rows.map(r => `${r.label} ${fmtW(r.v)}`).join(", "))
       .selectAll("g").data(rows).join("g").attr("transform", (d, i) => `translate(0,${i * rowH})`);
     g.append("text").attr("y", rowH / 2).attr("dy", "0.35em").attr("font-size", 12).attr("fill", css("--text-secondary")).text(d => d.label);
     g.append("path").attr("fill", d => d.col).attr("d", d => roundedBar(x(0), 8, x(d.v) - x(0), rowH - 16));
@@ -153,7 +162,8 @@
     const Hh = 300;
     const x = d3.scaleLinear().domain([Y[0], YMAX]).range([HM.l, HW - HM.r]);
     const yS = d3.scaleLinear().domain([0, d3.max(series, s => d3.max(s.vals, d => d.v)) * 1.08]).nice().range([Hh - HM.b, HM.t]);
-    const svg = d3.select("#histChart").html("").append("svg").attr("viewBox", `0 0 ${HW} ${Hh}`).style("width", "100%").style("display", "block");
+    const svg = d3.select("#histChart").html("").append("svg").attr("viewBox", `0 0 ${HW} ${Hh}`).style("width", "100%").style("display", "block")
+      .attr("role", "img").attr("aria-label", `Line chart, ${Y[0]} to ${YMAX}. ` + series.map(s => `${s.name}: ${fmtW(s.vals[0].v)} in ${Y[0]}, ${fmtW(s.vals[s.vals.length - 1].v)} in ${YMAX}`).join(". ") + `. Hours per week at minimum wage went from ${c.hours_min_wage[Y[0]]} to ${c.hours_min_wage[YMAX]}.`);
     svg.append("g").attr("class", "axis").attr("transform", `translate(${HM.l},0)`)
       .call(d3.axisLeft(yS).ticks(5).tickFormat(d3.format("$,.0f")).tickSize(-(HW - HM.l - HM.r))).call(g => g.select(".domain").remove());
     svg.append("g").attr("class", "axis").attr("transform", `translate(0,${Hh - HM.b})`)
@@ -185,7 +195,8 @@
     // policy strip on the same x scale
     d3.select("#eventLegend").html(Object.values(EVT).map(t => `<span><b style="background:${t.color}">${t.letter}</b>${t.label}</span>`).join(""));
     const lanes = Object.keys(EVT), laneH = 22, SH = lanes.length * laneH + 8;
-    const sv = d3.select("#eventStrip").html("").append("svg").attr("viewBox", `0 0 ${HW} ${SH}`).style("width", "100%").style("display", "block");
+    const sv = d3.select("#eventStrip").html("").append("svg").attr("viewBox", `0 0 ${HW} ${SH}`).style("width", "100%").style("display", "block")
+      .attr("role", "img").attr("aria-label", "Policy timeline: " + data.events.map(e => `${e.date.slice(0, 4)}, ${e.title}`).join("; "));
     sv.selectAll("text.lane").data(lanes).join("text").attr("class", "lane").attr("x", HM.l - 6).attr("y", (d, i) => i * laneH + laneH / 2 + 4)
       .attr("dy", "0.35em").attr("text-anchor", "end").attr("font-size", 11).attr("fill", css("--text-muted")).text(d => EVT[d].letter);
     sv.selectAll("line.lane").data(lanes).join("line").attr("class", "lane").attr("x1", HM.l).attr("x2", HW - HM.r)
@@ -211,7 +222,8 @@
     const rows = Object.entries(occ).map(([k, label]) => ({ k, label, v: adj(c.jobs[k][latest], latest) })).filter(r => r.v != null).sort((a, b) => b.v - a.v);
     const bw = 520, rowH = 30, left = 175, right = 120, top = 18;
     const x = d3.scaleLinear().domain([0, Math.max(d3.max(rows, r => r.v), hw) * 1.05]).range([left, bw - right]);
-    const svg = d3.select("#jobsChart").html("").append("svg").attr("viewBox", `0 0 ${bw} ${top + rows.length * rowH + 6}`).style("width", "100%");
+    const svg = d3.select("#jobsChart").html("").append("svg").attr("viewBox", `0 0 ${bw} ${top + rows.length * rowH + 6}`).style("width", "100%")
+      .attr("role", "img").attr("aria-label", `Bar chart. Housing wage ${fmtW(hw)}. ` + rows.map(r => `${r.label} ${fmtW(r.v)}${r.v >= hw ? ", covers rent" : ""}`).join("; "));
     const g = svg.selectAll("g.r").data(rows).join("g").attr("class", "r").attr("transform", (d, i) => `translate(0,${top + i * rowH})`)
       .on("mousemove", (e, d) => showTip(e, `<b>${d.label}</b>Median pay: ${fmtW(d.v)}/hr<br>Hours/week to afford a 2BR at this pay: ${fmtN(hw * 40 / d.v)}`)).on("mouseleave", hideTip);
     g.append("rect").attr("width", bw).attr("height", rowH).attr("fill", "transparent");
@@ -232,8 +244,8 @@
       return { label, a: adj(a, first), b: adj(b, latest), g: a && b ? (st.dollars === "real" ? (b * REAL[latest]) / (a * REAL[first]) - 1 : b / a - 1) : null };
     });
     const rentGd = st.dollars === "real" ? (c.rent[latest] * REAL[latest]) / (c.rent[first] * REAL[first]) - 1 : rentG;
-    const t = d3.select("#jobsTable").html("");
-    t.append("thead").append("tr").selectAll("th").data(["Job", `${first} pay`, `${latest} pay`, "Change"]).join("th").text(d => d);
+    const t = d3.select("#jobsTable").html("").attr("aria-labelledby", "jobsTableTitle");
+    t.append("thead").append("tr").selectAll("th").data(["Job", `${first} pay`, `${latest} pay`, "Change"]).join("th").attr("scope", "col").text(d => d);
     const tb = t.append("tbody");
     tb.selectAll("tr.j").data(trs).join("tr").attr("class", "j").selectAll("td")
       .data(d => [d.label, d.a ? fmtW(d.a) : "n/a", d.b ? fmtW(d.b) : "n/a", d.g == null ? "n/a" : (d.g >= 0 ? "+" : "") + fmtP(d.g)]).join("td").text(d => d);
@@ -252,7 +264,8 @@
     const x = d3.scaleBand().domain(yrs).range([m.l, pw - m.r]).paddingInner(0.2);
     const yS = d3.scaleLinear().domain([0, d3.max(yrs, y => c.permits[y]) * 1.1 || 1]).nice().range([ph - m.b, m.t]);
     d3.select("#permitLegend").html(`<span><i style="background:${css("--s5")};height:10px;width:10px"></i>Apartments (5+ units)</span><span><i style="background:${css("--s2")};height:10px;width:10px"></i>Houses and small buildings (1–4 units)</span>`);
-    const svg = d3.select("#permitChart").html("").append("svg").attr("viewBox", `0 0 ${pw} ${ph}`).style("width", "100%");
+    const svg = d3.select("#permitChart").html("").append("svg").attr("viewBox", `0 0 ${pw} ${ph}`).style("width", "100%")
+      .attr("role", "img").attr("aria-label", "Homes permitted per year: " + yrs.map(y => `${y} ${fmtN(c.permits[y])}`).join(", "));
     svg.append("g").attr("class", "axis").attr("transform", `translate(${m.l},0)`)
       .call(d3.axisLeft(yS).ticks(5).tickFormat(d3.format(",.0f")).tickSize(-(pw - m.l - m.r))).call(g => g.select(".domain").remove());
     svg.append("g").attr("class", "axis").attr("transform", `translate(0,${ph - m.b})`)
@@ -286,7 +299,8 @@
     d3.select("#rankSub").text(`The dashed line marks the statewide figure (${m.fmt(stateVal(st.metric, y))}). Counties in the same HUD rental area have the same value.${st.metric === "hours" ? "" : dollarNote()}`);
     const w = 1060, rowH = 16, top = 22, left = 120, right = 70;
     const x = d3.scaleLinear().domain([0, d3.max(rows, r => m.get(r, y))]).nice().range([left, w - right]);
-    const root = d3.select("#rank").html("").append("svg").attr("viewBox", `0 0 ${w} ${top + rows.length * rowH + 4}`);
+    const root = d3.select("#rank").html("").append("svg").attr("viewBox", `0 0 ${w} ${top + rows.length * rowH + 4}`)
+      .attr("role", "img").attr("aria-label", `Ranked bar chart. Highest: ${rows.slice(0, 3).map(r => `${r.county} ${m.fmt(m.get(r, y))}`).join(", ")}. Lowest: ${rows.slice(-3).map(r => `${r.county} ${m.fmt(m.get(r, y))}`).join(", ")}. Full values are in the data table.`);
     root.append("g").attr("class", "axis").attr("transform", `translate(0,${top - 4})`)
       .call(d3.axisTop(x).ticks(6).tickFormat(m.fmt).tickSize(-(rows.length * rowH + 4))).call(g => g.select(".domain").remove());
     const g = root.selectAll("g.rank-row").data(rows).join("g")
@@ -321,9 +335,10 @@
     const col = COLS.find(c => c.k === sortK);
     const rows = [...data.counties].sort((a, b) => (sortDesc ? d3.descending : d3.ascending)(col.v(a), col.v(b)));
     d3.select("#tableSub").text(`Values for ${y}${dollarNote()}. Click a column to sort.`);
-    const t = d3.select("#table").html("");
+    const t = d3.select("#table"); t.selectAll("thead, tbody").remove();
     t.append("thead").append("tr").selectAll("th").data(COLS).join("th").attr("scope", "col")
       .attr("aria-sort", d => d.k === sortK ? (sortDesc ? "descending" : "ascending") : null)
+      .append("button").attr("type", "button").attr("class", "sort")
       .text(d => d.t + (d.k === sortK ? (sortDesc ? " ▾" : " ▴") : ""))
       .on("click", (e, d) => { sortDesc = d.k === sortK ? !sortDesc : !["county", "area"].includes(d.k); sortK = d.k; renderTable(); });
     t.append("tbody").selectAll("tr").data(rows).join("tr").style("font-weight", d => d.county === st.county ? 700 : null)
@@ -332,7 +347,7 @@
 
   function render() {
     d3.select("#countySelect").property("value", st.county);
-    d3.select("#yearRange").property("value", st.year); d3.select("#yearLabel").text(st.year);
+    d3.select("#yearRange").property("value", st.year).attr("aria-valuetext", st.year); d3.select("#yearLabel").text(st.year);
     d3.selectAll("#metricSeg button").attr("aria-pressed", ([k]) => k === st.metric);
     d3.selectAll("#dollarSeg button").attr("aria-pressed", function () { return this.dataset.v === st.dollars; });
     renderHeroes(); renderMap(); renderDetail(); renderHistory(); renderJobs(); renderHousing(); renderRank(); renderTable();

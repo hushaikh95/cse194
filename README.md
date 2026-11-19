@@ -38,7 +38,17 @@ Push this folder to a public repo → Settings → Pages → "Deploy from a bran
 - [ ] Second member spot-checks 5 counties in each raw file against the source
 - [ ] Policy timeline dates checked against bill texts
 - [ ] Neutral-wording review of the explanations section by people with differing views
-- [ ] Launch on GitHub Pages
+- [x] Launch on GitHub Pages (https://hushaikh95.github.io/cse194/)
+- [ ] Manual screen-reader pass (VoiceOver on Mac: Cmd+F5)
+
+## Accessibility
+Checked with axe-core (WCAG 2.1 A/AA + best practices) at desktop and phone widths: 0 violations.
+- Skip link, `main` landmark, labeled regions
+- Map counties are keyboard buttons (Tab to move, Enter to select) with labels
+- Every chart has a text description for screen readers; all values are also in the data table
+- Sortable table headers are buttons; scroll areas are keyboard-focusable
+- Color is never the only signal (labels, letters on policy markers, "covers rent" text)
+- Respects reduced-motion settings
 
 ## Known limits
 - Local city minimum wages aren't included (state rate only).
