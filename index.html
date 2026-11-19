@@ -4,118 +4,41 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Rent vs. Paycheck: California's Housing Affordability Gap</title>
-<meta name="description" content="Compare two-bedroom rent with the minimum wage in every California county.">
-<style>
-  :root {
-    color-scheme: light;
-    --surface-0: #f6f5f2;
-    --surface-1: #fcfcfb;
-    --border: #e2e0da;
-    --grid: #ebe9e4;
-    --text-primary: #0b0b0b;
-    --text-secondary: #52514e;
-    --text-muted: #77756f;
-    --accent: #1c5cab;
-    --s1: #cde2fb; --s2: #9ec5f4; --s3: #6da7ec; --s4: #3987e5; --s5: #256abf; --s6: #104281;
-    --ref: #8a8883;
-    --sel: #eb6834;
-    --radius: 10px;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0; background: var(--surface-0); color: var(--text-primary);
-    font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  }
-  a { color: var(--accent); }
-  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
-  header { padding: 40px 0 24px; }
-  header h1 { font-size: clamp(26px, 4vw, 38px); line-height: 1.15; margin: 0 0 8px; letter-spacing: -0.01em; }
-  header p.lede { font-size: 17px; color: var(--text-secondary); max-width: 720px; margin: 0; }
-  .asof { display: inline-block; margin-top: 14px; font-size: 13px; color: var(--text-muted);
-          border: 1px solid var(--border); border-radius: 999px; padding: 3px 10px; background: var(--surface-1); }
-
-  .card { background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
-  .heroes { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px; }
-  .hero .label { font-size: 13px; color: var(--text-secondary); }
-  .hero .value { font-size: 32px; font-weight: 650; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
-  .hero .sub { font-size: 13px; color: var(--text-muted); }
-
-  .controls { display: flex; flex-wrap: wrap; gap: 16px; align-items: end; margin-bottom: 12px; }
-  .controls label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--text-secondary); }
-  select { font: inherit; padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-1); color: var(--text-primary); min-width: 220px; }
-  .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface-1); }
-  .seg button { font: inherit; font-size: 14px; border: 0; background: transparent; padding: 7px 12px; cursor: pointer; color: var(--text-secondary); }
-  .seg button + button { border-left: 1px solid var(--border); }
-  .seg button[aria-pressed="true"] { background: var(--text-primary); color: var(--surface-1); }
-
-  .main { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 20px; }
-  @media (max-width: 860px) { .main { grid-template-columns: 1fr; } }
-  #map svg { width: 100%; height: auto; display: block; }
-  #map path.county { stroke: var(--surface-1); stroke-width: 0.8; cursor: pointer; }
-  #map path.county:hover { stroke: var(--text-primary); stroke-width: 1.5; }
-  #map path.county.selected { stroke: var(--sel); stroke-width: 2.5; }
-  .legend { display: flex; flex-wrap: wrap; gap: 2px; margin-top: 10px; font-size: 12px; color: var(--text-secondary); }
-  .legend .sw { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 52px; }
-  .legend .sw i { display: block; height: 10px; border-radius: 2px; }
-  .legend-title { font-size: 13px; color: var(--text-secondary); margin-bottom: 4px; }
-
-  #detail h2 { margin: 0; font-size: 26px; }
-  #detail .area { color: var(--text-muted); font-size: 13px; margin: 2px 0 14px; }
-  .note { font-size: 13px; background: #fbf3e9; border: 1px solid #f1dcc2; color: #6b4a22; border-radius: 8px; padding: 8px 10px; margin-bottom: 14px; }
-  .big { font-size: 44px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
-  .big-sub { color: var(--text-secondary); margin: 6px 0 16px; }
-  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; margin: 0 0 18px; }
-  .stats dt { font-size: 12px; color: var(--text-muted); }
-  .stats dd { margin: 0; font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; }
-  .chart-title { font-size: 13px; font-weight: 600; color: var(--text-secondary); margin: 0 0 6px; }
-
-  section { margin: 28px 0; }
-  section h3 { font-size: 20px; margin: 0 0 4px; }
-  section .sub { color: var(--text-secondary); margin: 0 0 14px; font-size: 14px; }
-  #rank { overflow-x: auto; }
-  #rank svg { width: 100%; min-width: 680px; display: block; }
-  @media (max-width: 600px) { .heroes { grid-template-columns: 1fr 1fr; } .hero .value { font-size: 24px; } .legend .sw { min-width: 30%; } }
-  .rank-row text { font-size: 12px; fill: var(--text-secondary); font-variant-numeric: tabular-nums; }
-  .rank-row.selected text { fill: var(--text-primary); font-weight: 700; }
-  .rank-row:hover text { fill: var(--text-primary); }
-  .axis text { font-size: 11px; fill: var(--text-muted); }
-  .axis line, .axis path { stroke: var(--grid); }
-
-  table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
-  th, td { text-align: right; padding: 6px 8px; border-bottom: 1px solid var(--grid); }
-  th:first-child, td:first-child, th:nth-child(2), td:nth-child(2) { text-align: left; }
-  th { color: var(--text-secondary); font-weight: 600; cursor: pointer; position: sticky; top: 0; background: var(--surface-1); }
-  .table-wrap { max-height: 480px; overflow: auto; }
-
-  .tooltip { position: fixed; pointer-events: none; z-index: 10; background: var(--text-primary); color: var(--surface-1);
-             padding: 8px 10px; border-radius: 8px; font-size: 13px; line-height: 1.35; max-width: 260px; opacity: 0; transition: opacity .08s; }
-  .tooltip b { display: block; font-size: 14px; }
-  .methods { font-size: 14px; color: var(--text-secondary); }
-  .methods h4 { color: var(--text-primary); margin: 16px 0 4px; font-size: 15px; }
-  .methods ul { padding-left: 20px; margin: 4px 0; }
-  footer { padding: 24px 0 48px; color: var(--text-muted); font-size: 13px; }
-  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
-</style>
+<meta name="description" content="Compare two-bedroom rent with the minimum wage and pay for common jobs in every California county, 2006–2026.">
+<link rel="stylesheet" href="css/site.css">
 </head>
 <body>
 <div class="wrap">
   <header>
+    <nav class="topnav" aria-label="Sections">
+      <a href="#explore">Explore</a><a href="#history">Over time</a><a href="#jobs">Jobs</a><a href="#housing">Housing</a><a href="#explanations">Why?</a><a href="#methods">Methods</a>
+    </nav>
     <h1>Rent vs. Paycheck</h1>
-    <p class="lede">How many hours would a minimum-wage worker need to work each week to afford a modest two-bedroom rental in your California county?</p>
+    <p class="lede">How many hours would a minimum-wage worker need to work each week to afford a modest two-bedroom rental in your California county, and how has that changed since 2006?</p>
     <span class="asof" id="asof">Loading data…</span>
   </header>
 
-  <div class="heroes" id="heroes"></div>
-
-  <div class="controls">
+  <div class="controls card" id="explore">
     <label>County
       <select id="countySelect" aria-label="Choose a county"></select>
     </label>
+    <label class="year">Year <b id="yearLabel">2026</b>
+      <input type="range" id="yearRange" min="2006" max="2026" step="1" value="2026" aria-label="Year">
+    </label>
     <div>
-      <div style="font-size:13px;color:var(--text-secondary);margin-bottom:4px">Color the map by</div>
-      <div class="seg" role="group" aria-label="Map metric" id="metricSeg"></div>
+      <div class="ctl-label">Color the map by</div>
+      <div class="seg" role="group" aria-label="Map measure" id="metricSeg"></div>
+    </div>
+    <div>
+      <div class="ctl-label">Dollars</div>
+      <div class="seg" role="group" aria-label="Dollar adjustment" id="dollarSeg">
+        <button type="button" data-v="nominal">As reported</button>
+        <button type="button" data-v="real">In 2025 dollars</button>
+      </div>
     </div>
   </div>
+
+  <div class="heroes" id="heroes"></div>
 
   <div class="main">
     <div class="card" id="mapCard">
@@ -126,6 +49,36 @@
     <div class="card" id="detail" aria-live="polite"></div>
   </div>
 
+  <section id="history">
+    <h3 id="histTitle">Over time</h3>
+    <p class="sub">Hourly pay a full-time worker needs to afford a two-bedroom rental, compared with the state minimum wage. The markers below the chart show state policy changes.</p>
+    <div class="card">
+      <div class="series-legend" id="histLegend"></div>
+      <div id="histChart"></div>
+      <div class="event-legend" id="eventLegend"></div>
+      <div id="eventStrip"></div>
+      <p class="caution"><b>Timing is not cause.</b> A policy appearing near a change in the lines does not mean the policy caused it. Rents and wages respond to many forces at once, including the economy, interest rates, and population changes.</p>
+    </div>
+  </section>
+
+  <section id="jobs">
+    <h3 id="jobsTitle">Pay for common jobs</h3>
+    <p class="sub" id="jobsSub"></p>
+    <div class="jobs-grid">
+      <div class="card"><p class="chart-title" id="jobsChartTitle"></p><div id="jobsChart"></div></div>
+      <div class="card"><p class="chart-title">Pay growth compared with rent growth</p><div class="table-wrap short"><table id="jobsTable"></table></div><p class="note-small" id="jobsNote"></p></div>
+    </div>
+  </section>
+
+  <section id="housing">
+    <h3 id="housingTitle">Housing supply and renter stress</h3>
+    <p class="sub">New homes permitted each year (Census Building Permits Survey) and renter conditions from the Census American Community Survey (5-year estimates, 2020–2024).</p>
+    <div class="jobs-grid">
+      <div class="card"><p class="chart-title" id="permitTitle">New homes permitted per year</p><div class="series-legend" id="permitLegend"></div><div id="permitChart"></div></div>
+      <div class="card"><div class="tiles" id="housingTiles"></div></div>
+    </div>
+  </section>
+
   <section>
     <h3 id="rankTitle">All 58 counties</h3>
     <p class="sub" id="rankSub"></p>
@@ -134,35 +87,74 @@
 
   <section>
     <h3>Data table</h3>
-    <p class="sub">Click a column to sort.</p>
+    <p class="sub" id="tableSub">Click a column to sort.</p>
     <div class="card table-wrap"><table id="table"></table></div>
   </section>
 
-  <section class="card methods" id="methods">
-    <h3 style="color:var(--text-primary)">Methods and sources</h3>
-    <h4>What the numbers mean</h4>
-    <ul>
-      <li><b>Two-bedroom rent</b> is HUD's Fair Market Rent (FMR), an estimate of a modest rental including utilities. It is not the average asking rent.</li>
-      <li><b>Housing wage</b> is the hourly pay a full-time (40 hr/week) worker needs so that rent is no more than 30% of income.</li>
-      <li><b>Hours per week at minimum wage</b> = housing wage × 40 ÷ the $16.90 state minimum wage. Some cities set a higher local minimum wage, which this page doesn't show yet.</li>
-      <li><b>Income needed</b> = annual rent ÷ 0.30. <b>Median renter household income</b> covers the whole household, which may include more than one earner.</li>
-    </ul>
-    <h4>Rental areas vs. counties</h4>
-    <p>HUD sets rents by rental area (metro areas and HUD Metro FMR Areas). Counties in the same area share the same figures, for example San Francisco, Marin and San Mateo. For 20 rural counties outside any metro area, this version uses NLIHC's combined non-metro average for California, and those counties are labeled as estimates. Each one will get its own county figure in a later update.</p>
-    <h4>Framing</h4>
-    <p>This page reports figures; it does not argue for any policy. Differences between counties have many possible causes.</p>
-    <h4>Sources</h4>
-    <ul>
-      <li>National Low Income Housing Coalition, <a href="https://nlihc.org/oor/state/ca">Out of Reach 2026: California</a> (FMR, housing wage, renter income).</li>
-      <li>U.S. Department of Housing and Urban Development, Fair Market Rents (via NLIHC).</li>
-      <li>California Department of Industrial Relations, state minimum wage ($16.90/hr in 2026).</li>
-      <li>County boundaries: U.S. Census Bureau cartographic boundaries via <a href="https://github.com/topojson/us-atlas">us-atlas</a>.</li>
-    </ul>
-    <h4>Coming next</h4>
-    <p>Pay for common local jobs (BLS), earlier years, a state policy timeline, and an inflation toggle.</p>
+  <section class="card prose" id="explanations">
+    <h3>Why is rent so high? Competing explanations</h3>
+    <p>Researchers and advocates disagree about what drives California's rent-versus-wage gap and what to do about it. Below is a short, balanced summary of the main explanations. We list them without ranking them, and each one has evidence for it and critics.</p>
+    <div class="explain-grid">
+      <div><h4>Not enough homes have been built</h4>
+        <p>California's Legislative Analyst's Office (2015) concluded that the state built far fewer homes than demand called for in its coastal metros for decades. It pointed to local zoning, lengthy approval processes, environmental review, and fees. The state's housing department (HCD) has set a goal of 2.5 million new homes by 2030.</p>
+        <p class="debate"><b>Debate:</b> Some argue that new market-rate housing mostly serves higher earners and does little for low-wage renters in the short run. Others cite research that new supply lowers nearby rents over time.</p></div>
+      <div><h4>Building is expensive</h4>
+        <p>UC Berkeley's Terner Center reports that land, labor, materials, and financing costs in California are among the highest in the country. Higher interest rates since 2022 have made many projects harder to finance.</p>
+        <p class="debate"><b>Debate:</b> People disagree about how much of that cost comes from regulation, which policy can change, and how much from market forces.</p></div>
+      <div><h4>Strong demand in high-wage regions</h4>
+        <p>Job growth in tech, health care, and other high-paying industries brings in workers who can afford higher rents. This pushes up prices for everyone in the same housing market, including lower-wage workers.</p>
+        <p class="debate"><b>Debate:</b> Population growth has slowed and some counties lost residents after 2020, yet rents kept rising in many of them.</p></div>
+      <div><h4>Wages at the bottom have not kept up</h4>
+        <p>Some argue that the gap is as much about pay as about rent. Even after large minimum-wage increases since 2014, a full-time minimum-wage job covers well under half of a two-bedroom rental in most coastal counties.</p>
+        <p class="debate"><b>Debate:</b> Economists disagree about how high minimum wages can go before employers cut jobs or hours (see the Congressional Budget Office's 2019 review). Voters rejected an $18 statewide minimum wage (Prop 32) in 2024.</p></div>
+      <div><h4>Rules for renters and landlords</h4>
+        <p>Supporters say rent caps like AB 1482 and stronger eviction protections give tenants stability. Critics say strict rent control discourages new rental housing. A widely cited Stanford study of San Francisco (Diamond, McQuade &amp; Qian, 2019) found that rent control helped covered tenants stay in their homes but also led some landlords to take units off the rental market.</p>
+        <p class="debate"><b>Debate:</b> Voters rejected expanding local rent control three times (2018, 2020, 2024), while many cities still have their own ordinances.</p></div>
+      <div><h4>Housing as an investment</h4>
+        <p>Some point to investors and large corporate landlords, short-term rentals, and low interest rates before 2022 as forces that pushed prices up. Others find these effects are small or limited to certain neighborhoods compared with the overall shortage.</p>
+        <p class="debate"><b>Debate:</b> Measuring this is hard, and research results vary by city.</p></div>
+    </div>
+    <p class="note-small">Reviewed for neutral wording. If you think a summary here is unfair, open an issue in the project's GitHub repository.</p>
   </section>
 
-  <footer>CSE 194 group project · Kareem Nabulsi, Humza Shaikh, Aman Dhillon, Christos Enotiadis · Code and data are public on GitHub.</footer>
+  <section class="card prose" id="methods">
+    <h3>Methods and sources</h3>
+    <h4>What the numbers mean</h4>
+    <ul>
+      <li><b>Two-bedroom rent</b> is HUD's Fair Market Rent (FMR) for each county's rental area. It estimates a modest rental including utilities, at about the 40th percentile of local rents. FMRs use HUD's federal fiscal year (FY2026 starts October 2025).</li>
+      <li><b>Housing wage</b> = monthly rent × 12 ÷ 0.30 ÷ 2,080 hours. This is the hourly pay a full-time worker needs so that rent takes no more than 30% of income, the same method NLIHC uses.</li>
+      <li><b>Hours per week at minimum wage</b> = housing wage × 40 ÷ that year's state minimum wage (the rate for employers with 26+ workers from 2017 to 2022). Some cities set a higher local minimum wage, which this site doesn't include.</li>
+      <li><b>Job pay</b> is the BLS median hourly wage for the county's metro or rural area. Counties in the same area share the same pay. Madera County uses the Fresno area for 2025 because BLS changed its area boundaries.</li>
+      <li><b>In 2025 dollars</b> adjusts using the CPI-U annual average. The 2026 annual CPI isn't out yet, so 2026 is shown at 2025 prices. Hours of work don't change, because rent and wages are adjusted by the same amount.</li>
+      <li><b>Statewide</b> figures are averages of the 58 counties, weighted by renter households. For 2026 the result is within a few dollars of NLIHC's published statewide figure.</li>
+      <li><b>Cost burden</b> = share of renter households paying 30% or more of income on rent and utilities (50% or more = severe). <b>Rental vacancy</b> = vacant-for-rent units ÷ all rental units. Both are 5-year ACS estimates with margins of error, especially in small counties.</li>
+    </ul>
+    <h4>How figures were checked</h4>
+    <p>Each figure is pulled from the official file by a script and checked against the source: row counts, column sums, and spot checks against published tables. For example, every 2026 county rent matches NLIHC's <i>Out of Reach 2026</i>. A second team member reviews each data file before it's published.</p>
+    <h4>Sources</h4>
+    <ol class="sources" id="sources">
+      <li>U.S. Department of Housing and Urban Development (HUD), <a href="https://www.huduser.gov/portal/datasets/fmr.html">Fair Market Rents and FMR History 1983–present</a>.</li>
+      <li>National Low Income Housing Coalition (NLIHC), <a href="https://nlihc.org/oor/state/ca">Out of Reach 2026: California</a>.</li>
+      <li>U.S. Bureau of Labor Statistics (BLS), <a href="https://www.bls.gov/oes/">Occupational Employment and Wage Statistics</a>, May 2016, 2020, 2023 and 2025.</li>
+      <li>BLS, <a href="https://www.bls.gov/OES/2025/may/ca_counties.htm">California county to OEWS area definitions</a>.</li>
+      <li>BLS, Consumer Price Index for All Urban Consumers (CPI-U), via <a href="https://fred.stlouisfed.org/series/CPIAUCNS">FRED</a>.</li>
+      <li>U.S. Census Bureau, <a href="https://www.census.gov/construction/bps/">Building Permits Survey</a>, annual county files 2006–2025.</li>
+      <li>U.S. Census Bureau, <a href="https://www.census.gov/programs-surveys/acs">American Community Survey</a> 5-year 2020–2024, tables B25003, B25004, B25070.</li>
+      <li>California Department of Industrial Relations, <a href="https://www.dir.ca.gov/iwc/minimumwagehistory.htm">History of California minimum wage</a> and <a href="https://www.dir.ca.gov/dlse/faq_minimumwage.htm">Minimum wage FAQ</a>.</li>
+      <li>California Legislative Information, <a href="https://leginfo.legislature.ca.gov/">bill texts</a> for AB 1482 (2019), AB 3088 (2020), SB 91 (2021), AB 832 (2021), SB 9 (2021), AB 2179 (2022), SB 3 (2016), AB 1228 (2023).</li>
+      <li>California Secretary of State, <a href="https://www.sos.ca.gov/elections/prior-elections/statewide-election-results">statewide election results</a> (Props 10, 21, 32, 33).</li>
+      <li>Legislative Analyst's Office, <a href="https://lao.ca.gov/reports/2015/finance/housing-costs/housing-costs.aspx">California's High Housing Costs: Causes and Consequences</a> (2015).</li>
+      <li>California Department of Housing and Community Development, <a href="https://www.hcd.ca.gov/">Statewide Housing Plan</a>.</li>
+      <li>Terner Center for Housing Innovation, UC Berkeley, <a href="https://ternercenter.berkeley.edu/">research on housing construction costs</a>.</li>
+      <li>Diamond, McQuade &amp; Qian (2019), "The Effects of Rent Control Expansion on Tenants, Landlords, and Inequality: Evidence from San Francisco," <i>American Economic Review</i>.</li>
+      <li>Congressional Budget Office (2019), <a href="https://www.cbo.gov/publication/55410">The Effects on Employment and Family Income of Increasing the Federal Minimum Wage</a>.</li>
+      <li>County boundaries: U.S. Census Bureau cartographic boundaries via <a href="https://github.com/topojson/us-atlas">us-atlas</a>.</li>
+    </ol>
+    <h4>Framing</h4>
+    <p>This site reports figures; it does not argue for any policy. Labels are kept neutral, and the explanations section gives competing views side by side.</p>
+  </section>
+
+  <footer>CSE 194 group project · Kareem Nabulsi, Humza Shaikh, Aman Dhillon, Christos Enotiadis · Code and data are public on GitHub. This site is not actively maintained after the semester; check the "data as of" dates.</footer>
 </div>
 <div class="tooltip" id="tip" role="tooltip"></div>
 

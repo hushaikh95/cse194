@@ -1,0 +1,20 @@
+[
+  {"date": "2007-01-01", "type": "wage", "title": "Minimum wage rises to $7.50", "detail": "First of two steps set by AB 1835 (2006)."},
+  {"date": "2008-01-01", "type": "wage", "title": "Minimum wage rises to $8.00", "detail": "Second step of AB 1835."},
+  {"date": "2014-07-01", "type": "wage", "title": "Minimum wage rises to $9.00", "detail": "First step under AB 10 (2013)."},
+  {"date": "2016-01-01", "type": "wage", "title": "Minimum wage rises to $10.00", "detail": "Second step under AB 10."},
+  {"date": "2016-04-04", "type": "wage", "title": "SB 3 signed: path to $15", "detail": "Schedule of yearly raises to $15 by 2022 for large employers (2023 for small), then yearly inflation adjustments."},
+  {"date": "2017-01-01", "type": "housing", "title": "New statewide ADU rules take effect", "detail": "SB 1069 and AB 2299 (2016) make it easier to build accessory dwelling units (backyard homes)."},
+  {"date": "2018-11-06", "type": "ballot", "title": "Prop 10 (rent control) fails", "detail": "Would have repealed the Costa-Hawkins limits on local rent control. About 59% voted no."},
+  {"date": "2020-01-01", "type": "housing", "title": "AB 1482 rent cap takes effect", "detail": "Tenant Protection Act: caps yearly rent increases on many older units at 5% plus inflation (max 10%) and adds just-cause eviction rules."},
+  {"date": "2020-04-06", "type": "covid", "title": "COVID-19 eviction freeze", "detail": "Judicial Council emergency rule pauses most eviction cases statewide."},
+  {"date": "2020-08-31", "type": "covid", "title": "COVID-19 Tenant Relief Act (AB 3088)", "detail": "Protects tenants who declare COVID-19 financial hardship; later extended by SB 91 and AB 832."},
+  {"date": "2020-11-03", "type": "ballot", "title": "Prop 21 (rent control) fails", "detail": "Second attempt to expand local rent control. About 60% voted no."},
+  {"date": "2021-09-30", "type": "covid", "title": "Main state eviction protections end", "detail": "AB 832 protections expire; a rental-assistance pathway continues."},
+  {"date": "2022-01-01", "type": "housing", "title": "SB 9 lets owners split lots / build duplexes", "detail": "Allows up to two homes on many single-family lots, with lot splits."},
+  {"date": "2022-06-30", "type": "covid", "title": "Last COVID-19 eviction rules expire", "detail": "AB 2179 extension ends."},
+  {"date": "2023-01-01", "type": "wage", "title": "Minimum wage reaches $15.50 for all employers", "detail": "SB 3 schedule complete; yearly inflation adjustments begin."},
+  {"date": "2024-04-01", "type": "wage", "title": "$20 fast-food minimum wage (AB 1228)", "detail": "Applies to workers at large fast-food chains only."},
+  {"date": "2024-11-05", "type": "ballot", "title": "Props 32 and 33 fail", "detail": "Prop 32 ($18 minimum wage) and Prop 33 (expand local rent control, about 60% no) both rejected."},
+  {"date": "2026-01-01", "type": "wage", "title": "Minimum wage $16.90", "detail": "Inflation adjustment; $17.40 certified for 2027."}
+]
